@@ -1,0 +1,215 @@
+<body onKeyDown="keyDown(event)" onKeyUp="keyUp(event)"></body>
+
+<canvas id="canvas" width=1500 height=1500 style=
+"position:absolute;">
+Find a new browser you n00b!
+</canvas>
+
+<script>
+
+	var gameCanvas = document.getElementById("canvas");
+	var gfx = gameCanvas.getContext("2d");
+	var player = new Player("characterdown.png");
+	var enemy = new Enemy("enemy.gif");
+	
+	var block = new Image();
+	block.src = "block.png";
+	var floor = new Image();
+	floor.src = "floor.png";
+	
+	//15 x 10
+			//bottom right corner	    	    							//bottom left corner
+	var blockArr = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+					[1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+					[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
+	
+	var isUp = false, isDown = false, isLeft = false, isRight = false, start = new Date();
+	
+	function keyDown(e)
+	{
+		//down arrow
+		if(e.keyCode == 40)
+		{
+			isDown = true;
+			player.preC = player.C;
+			player.preR = player.R;
+			if(blockArr[player.preR][player.preC+1]!=1)
+			{
+				player.C++;
+				blockArr[player.preR][player.preC] = 0;
+				blockArr[player.R][player.C] = 2;
+			}
+		}
+		//right arrow
+		if(e.keyCode == 39)
+		{
+			isRight = true;
+			player.preC = player.C;
+			player.preR = player.R;
+			if(blockArr[player.preR+1][player.preC]!=1)
+			{
+				player.R++;
+				blockArr[player.preR][player.preC] = 0;
+				blockArr[player.R][player.C] = 2;
+			}
+		}
+		//left arrow
+		if(e.keyCode == 37)
+		{
+			isLeft = true;
+			player.preC = player.C;
+			player.preR = player.R;
+			if(blockArr[player.preR-1][player.preC]!=1)
+			{
+				player.R--;
+				blockArr[player.preR][player.preC] = 0;
+				blockArr[player.R][player.C] = 2;
+			}
+		}
+		//up arrow
+		if(e.keyCode == 38)
+		{
+			isUp = true;
+			player.preC = player.C;
+			player.preR = player.R;
+			if(blockArr[player.preR][player.preC-1]!=1)
+			{
+				player.C--;
+				blockArr[player.preR][player.preC] = 0;
+				blockArr[player.R][player.C] = 2;
+			}
+		}
+	}
+	
+	function keyUp(e)
+	{
+		//down arrow
+		if(e.keyCode == 40) isDown = false;
+		//right arrow
+		if(e.keyCode == 39) isRight = false;
+		//left arrow
+		if(e.keyCode == 37) isLeft = false;
+		//up arrow
+		if(e.keyCode == 38) isUp = false;
+	}
+	
+	MainLoop();
+
+	function MainLoop()
+	{	
+		console.log(start.getMinutes(), start.getSeconds());
+		if(!(checkTime(start)))
+		{
+			//clear the screen
+			gfx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+			//blocks
+			drawMap();
+			setTimeout(MainLoop, 1000/60);
+		}
+	}	
+
+	//Player and Enemy objects
+	function Player(img)
+	{
+		this.Sprite = new Image();
+		this.Sprite.src = img;
+		this.R = 1;
+		this.C = 1;
+		this.preR = this.R;
+		this.preC = this.R;
+	}
+	Player.prototype.draw = function(dir)
+	{
+		if(dir == "up")
+		{
+			this.Sprite.src = "characterup.png";
+		}
+		else if(dir == "down")
+		{
+			this.Sprite.src = "characterdown.png";
+		}
+		else if(dir == "left")
+		{
+			this.Sprite.src = "characterleft.png";
+		}
+		else
+		{
+			this.Sprite.src = "characterright.png";
+		}
+	}
+	Player.prototype.draw = function(dir)
+	{
+		if(dir == "up") return this.Sprite.src = "characterup.png";
+		if(dir == "down") return this.Sprite.src = "characterdown.png";
+		if(dir == "right") return this.Sprite.src = "characterright.png";
+		if(dir == "left") return this.Sprite.src = "characterleft.png";
+		
+	}
+	
+	//enemy object
+	function Enemy(img)
+	{
+		this.Sprite = new Image();
+		this.Sprite.src = img;
+		this.X;
+		this.Y;
+		this.velX = 10;
+		this.velY = 10;
+	}
+	
+	//Create 
+	
+	function drawMap()
+	{	
+			for(var r = 0; r < 12; r++)
+			{
+				for(var c = 0; c < 12; c++)
+				{
+					gfx.drawImage(floor, r*floor.width, c*floor.height);
+					if(blockArr[r][c] == 1)
+					{
+						gfx.drawImage(block, (r*block.width), c*block.height);
+					}
+					if(blockArr[r][c] == 2)
+					{
+						var x = (r*60), y = (c*60);
+						gfx.drawImage(player.Sprite, x, y);
+						if(isUp)player.draw("up");
+						if(isDown)player.draw("down");
+						if(isLeft)player.draw("left");
+						if(isRight)player.draw("right");
+					}
+				}
+			}
+	}
+	
+	function isCollide(obj)
+	{
+		//x and y
+	}	
+	
+	function checkTime(start)
+	{
+		var now = new Date();
+		
+		if ((now.getSeconds() >= start.getSeconds() + 100000) && (now.getMinutes() >= start.getMinutes()))
+		{
+			alert("Times Up!!!");
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+</script>
